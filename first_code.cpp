@@ -3,6 +3,11 @@ using namespace std;
 
 int main()
 {
-	cout << "first_code" << endl;
+	
+
+
+	cout << "second_code" << endl;
+	cout << "hello world" << endl;
+
 	return 0;
 }
