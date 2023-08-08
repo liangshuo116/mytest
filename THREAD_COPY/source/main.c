@@ -1,5 +1,7 @@
 #include <THREAD_COPY.h>
 
+// 多进程拷贝（不能拷贝图片等二进制数据文件）
+
 int main(int argc, char** argv)
 {
 	int prono;
