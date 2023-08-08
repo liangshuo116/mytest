@@ -6,7 +6,7 @@ int main(int argc, char** argv)
 	int blocksize;
 	if (argv[3] == 0)
 	{
-		prono == 5;
+		prono = 5;
 	}
 	else prono = atoi(argv[3]);
 	CHECK_ARG(argc, argv[1], prono);
