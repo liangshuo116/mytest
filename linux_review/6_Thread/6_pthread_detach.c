@@ -16,8 +16,6 @@ void* Thread_job(void* arg)
 		sleep(1);
 	
 	pthread_exit(NULL);
-
-	return (void*)8;
 }
 
 int main()
