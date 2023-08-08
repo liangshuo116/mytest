@@ -41,6 +41,7 @@ int main()
 	if ((err = pthread_create(&tid, &Attr, Thread_job, NULL)) > 0)
 	{
 		printf("Master 0x%x Create DETACHED Thread Failed!, error: %s\n", (unsigned int)pthread_self(), strerror(err));
+		pthread_attr_destroy(&Attr);
 		exit(0);
 	}
 	printf("Master 0x%x Create DETACHED Thread 0x%x Success!\n", (unsigned int)pthread_self(), (unsigned int)tid);
