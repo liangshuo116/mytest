@@ -5,7 +5,7 @@
 #include <MysocketAPI.h>
 
 //#define SERVER_IP "42.193.104.238" 
-#define SERVER_IP "192.168.221.161" 
+#define SERVER_IP "192.168.221.170" 
 //#define SERVER_PORT 8080
 #define SERVER_PORT 54321
 
@@ -35,7 +35,7 @@ int main(void)
 	{
 		//读取服务器端返回数据
 		bzero(Request, sizeof(Request));
-		recvlen = recv(Client_fd, Request, sizeof(Request), 0);
+		recvlen = recv(Client_fd, Request, sizeof(Request), MSG_DONTWAIT); // 非阻塞接收数据
 		if (recvlen > 0)
 		{
 			printf("对你说：%s\n", Request);
