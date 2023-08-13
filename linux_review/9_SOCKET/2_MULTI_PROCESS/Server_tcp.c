@@ -10,16 +10,24 @@
 #include <signal.h>
 #include <sys/wait.h>
 
-// 多进程模型
+// 多进程结构服务器
 /*
-增加一个线程去回收子进程，捕捉SIGCHLD信号后调用wait函数
+父进程与客户端建立连接，一个子进程对应处理一个客户端，通过多进程来处理多个客户端的请求。
+
+问题：
+	客户端退出连接，子进程就会先于父进程退出，父进程没有进行回收，产生僵尸进程，造成内存泄漏。
+解决：
+	主进程需要阻塞接收客户端连接，因此需要创建一个线程（线程A）去回收子进程：
+		调用waitpid函数，产生僵尸进程后，系统会发送 SIGCHLD 信号给进程，
+		一种是按信号数量来决定回收次数，如果信号不支持排队，在处理完当前信号时收到的信号都会被丢弃，不能回收干净。
+		因此线程A 捕获到一个SIGCHLD信号后，就应该尽可能多次回收，将当前可回收的进程全部回收。
 */
 
 #define SERVER_IP 		"192.168.221.161"
 #define SERVER_PORT 	54321
 #define shutdown 		1
 
-// TODO:捕捉函数（SIGCHLD）
+// 捕捉函数（SIGCHLD）
 void Sig_do(int signum)
 { 
 	// 捕捉到一个信号就尽可能多次回收，将当前可回收的进程全部回收（信号不能排队）
@@ -30,7 +38,7 @@ void Sig_do(int signum)
 	}
 }
 
-// TODO:线程工作（回收僵尸进程）
+// 线程工作（回收僵尸进程）
 void* Thread_job(void* arg)
 {
 	pthread_detach(pthread_self()); 	// 修改为分离态线程，线程执行完毕自动回收
@@ -69,13 +77,13 @@ int main(void)
 	BIND(Server_fd, (struct sockaddr*)&ServerAddr, sizeof(ServerAddr)); // 2.绑定网络信息
 	LISTEN(Server_fd, 128); 											// 3.对 socket 链接事件进行监听
 	
-	// TODO:自定义信号屏蔽字，屏蔽SIGCHLD，防止普通线程刚一创建还未捕捉而被忽略（SIGCHLD是为数不多默认行为为忽略的信号）。
+	// 自定义信号屏蔽字，屏蔽SIGCHLD，防止普通线程刚一创建还未捕捉而被忽略（SIGCHLD是为数不多默认行为为忽略的信号）。
 	sigset_t set, old_set; 		// 定义信号集
 	sigemptyset(&set); 			// 全部位码置 0
 	sigaddset(&set, SIGCHLD); 	// 将信号SIGCHLD对应位码置 1
 	sigprocmask(SIG_SETMASK, &set, &old_set); 	// 替换信号屏蔽字，SIG_SETMASK直接覆盖
 	
-	// TODO:创建普通线程回收僵尸进程（父进程通过信号被动回收）
+	// 创建普通线程回收僵尸进程（父进程通过信号被动回收）
 	pthread_t tid;
 	int err;
 	if ((err = pthread_create(&tid, NULL, Thread_job, NULL)) > 0)
