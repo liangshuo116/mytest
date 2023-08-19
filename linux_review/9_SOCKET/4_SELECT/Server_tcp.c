@@ -7,7 +7,7 @@
 #include <string.h>
 #include <sys/select.h>
 
-// 多线程结构服务器
+// Select单进程一对多服务器
 
 //#define SERVER_IP 		"192.168.221.170"
 #define SERVER_PORT 	54321
