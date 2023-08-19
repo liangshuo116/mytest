@@ -44,7 +44,8 @@ int main(void)
 	LISTEN(Server_fd, 128); 											// 3.对 socket 链接事件进行监听
 	printf("Select Server Version 0.0.1 Accept Start..\n");
 
-	fd_set set, oset; 			// 初始化监听集合，set作为传入的监听集合，oset作为传出的监听集合，传入传出分离
+	fd_set set, oset; 			// 初始化监听集合，set作为传入的监听集合，oset作为传出的监听集合
+	// 传入的监听集合再次传出时会被更改，因此创建oset作为set的备份，传入传出分离。
 	FD_ZERO(&set); 				// 将监听集合中所有位码初始化为 0
 	FD_SET(Server_fd, &set); 	// 监听服务端 Server_fd
 	int readycode = 0; 			// select返回值，就绪sockfd数量
@@ -62,7 +63,7 @@ int main(void)
 	// select开始轮询监听
 	while (shutdown)
 	{
-		oset = set; 	// 更新传出集合
+		oset = set; 	// 更新传出集合，即更新要备份的监听集合
 		// 传入监听集合
 		readycode = select(maxfd + 1, &oset, NULL, NULL, NULL);
 		// 循环处理就绪的 sockfd
